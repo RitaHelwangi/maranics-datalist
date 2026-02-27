@@ -14,7 +14,17 @@ function TableView({ collection, items }: TableViewProps) {
 			const option = field.options.find((o) => o.value === value);
 			if (option) {
 				return <Badge label={option.label} color={option.color} />;
+				
 			}
+		}
+		
+		if (field.type === "date" && value) {
+			const formatted = new Date(String(value)).toLocaleDateString("en-GB", {
+				day: "2-digit",
+				month: "short",
+				year: "numeric",
+			});
+			return <span>{formatted}</span>;
 		}
 		
 		return <span>{String(value ?? "—")}</span>;
