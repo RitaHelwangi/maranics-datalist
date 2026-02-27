@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { collections, sampleData } from "./data";
-import type { Collection, Field, Item } from "./types";
+import type { Collection} from "./types";
+import TableView from "./components/TableView";
 
 function App() {
 	const [currentCollectionId, setCurrentCollectionId] = useState("voyages");
@@ -20,7 +21,6 @@ function App() {
 		</header>
 		
 		<div className="flex">
-		{/* Simple sidebar */}
 		<aside className="w-64 bg-white shadow-sm p-4 min-h-screen">
 		<h2 className="text-sm font-semibold text-gray-500 mb-3">
 		COLLECTIONS
@@ -48,37 +48,7 @@ function App() {
 		<main className="flex-1 p-6">
 		<h2 className="text-xl font-bold mb-4">{currentCollection.name}</h2>
 		
-		{/* Simple table */}
-		<div className="bg-white rounded-lg shadow overflow-hidden">
-		<table className="w-full">
-		<thead className="bg-gray-50">
-		<tr>
-		{currentCollection.fields.map((field: Field) => (
-			<th
-			key={field.id}
-			className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase"
-			>
-			{field.label}
-			</th>
-		))}
-		</tr>
-		</thead>
-		<tbody className="divide-y divide-gray-200">
-		{items.map((item: Item) => (
-			<tr key={item.id} className="hover:bg-gray-50">
-			{currentCollection.fields.map((field: Field) => (
-				<td
-				key={field.id}
-				className="px-6 py-4 text-sm text-gray-900"
-				>
-				{String(item[field.id] ?? "—")}
-				</td>
-			))}
-			</tr>
-		))}
-		</tbody>
-		</table>
-		</div>
+		<TableView collection={currentCollection} items={items} />
 		</main>
 		</div>
 		</div>
