@@ -5,6 +5,7 @@ import TableView from "./components/TableView";
 import CardView from "./components/CardView";
 import FilterBar from "./components/FilterBar";
 import ItemForm from "./components/ItemForm";
+import Pagination from "./components/Pagination";
 
 function App() {
 	const [currentCollectionId, setCurrentCollectionId] = useState("voyages");
@@ -13,6 +14,8 @@ function App() {
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [editingItem, setEditingItem] = useState<Item | null>(null);
 	const [data, setData] = useState(sampleData);
+	const [currentPage, setCurrentPage] = useState(1);
+	const itemsPerPage = 5; // can make this dynamic later
 	
 	const [visibleFieldIds, setVisibleFieldIds] = useState<
 	Record<string, string[]>
@@ -20,7 +23,7 @@ function App() {
 		// change this logic to hide some fields by default later
 		const defaults: Record<string, string[]> = {};
 		collections.forEach((c) => {
-			defaults[c.id] = c.fields.map((f) => f.id);
+			defaults[c.id] = c.fields.slice(0, 6).map((f) => f.id);
 		});
 		return defaults;
 	});
@@ -40,11 +43,24 @@ function App() {
 ),
 );
 
+// Slice filtered items for current page
+const paginatedItems = filteredItems.slice(
+	(currentPage - 1) * itemsPerPage,
+	currentPage * itemsPerPage,
+);
+
 // Switch collection and reset search
 function handleCollectionChange(id: string) {
 	setCurrentCollectionId(id);
 	setSearchText("");
+	setCurrentPage(1);
 }
+
+const handleSearchChange = (text: string) => {
+	setSearchText(text);
+	setCurrentPage(1);
+};
+
 
 function handleToggleColumn(fieldId: string) {
 	setVisibleFieldIds((prev) => {
@@ -73,7 +89,6 @@ function handleUpdateCell(
 // Add/edit item form submission
 function handleSave(formData: Item) {
 	if (editingItem) {
-	
 		setData((prev) => ({
 			...prev,
 			[currentCollectionId]: prev[currentCollectionId].map((item) =>
@@ -169,12 +184,12 @@ return (
 	<main className="flex-1 p-6">
 	<h2 className="text-xl font-bold mb-4">{currentCollection.name}</h2>
 	
-	<FilterBar searchText={searchText} onSearchChange={setSearchText} />
+	<FilterBar searchText={searchText} onSearchChange={handleSearchChange} />
 	
 	{viewMode === "table" ? (
 		<TableView
 		collection={currentCollection}
-		items={filteredItems}
+		items={paginatedItems}
 		visibleFieldIds={visibleFieldIds[currentCollectionId] || []}
 		onToggleColumn={handleToggleColumn}
 		onUpdateItem={handleUpdateCell}
@@ -182,10 +197,18 @@ return (
 	) : (
 		<CardView
 		collection={currentCollection}
-		items={filteredItems}
+		items={paginatedItems}
 		onEdit={openEditForm}
 		/>
 	)}
+	
+	{/* Pagination below the table/cards */}
+	<Pagination
+	totalItems={filteredItems.length}
+	itemsPerPage={itemsPerPage}
+	currentPage={currentPage}
+	onPageChange={setCurrentPage}
+	/>
 	</main>
 	</div>
 	

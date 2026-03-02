@@ -110,7 +110,7 @@ return (
 		</button>
 		</div>
 		
-		<div className="p-2">
+		<div className="p-2 max-h-80 overflow-y-auto">
 		{collection.fields.map((field: Field) => {
 			const isVisible = visibleFieldIds.includes(field.id);
 			return (
