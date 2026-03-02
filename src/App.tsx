@@ -120,108 +120,115 @@ function openEditForm(item: Item) {
 }
 
 return (
-	<div className="min-h-screen bg-gray-50">
-	{/* Header */}
-	<header className="bg-white shadow-sm p-4 flex items-center justify-between">
-	<h1 className="text-2xl font-bold text-gray-900">Maranics</h1>
-	
-	<div className="flex items-center gap-3">
-	{/* View toggle */}
-	<button
-	onClick={() => setViewMode("table")}
-	className={`px-4 py-2 rounded text-sm font-medium ${
-		viewMode === "table"
-		? "bg-maranics-primary text-white"
-		: "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-	}`}
-	>
-	Table
-	</button>
-	<button
-	onClick={() => setViewMode("card")}
-	className={`px-4 py-2 rounded text-sm font-medium ${
-		viewMode === "card"
-		? "bg-maranics-primary text-white"
-		: "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-	}`}
-	>
-	Cards
-	</button>
-	
-	{/* Add item */}
-	<button
-	onClick={openAddForm}
-	className="px-4 py-2 bg-maranics-primary text-white text-sm font-medium rounded-lg hover:bg-maranics-dark"
-	>
-	+ Add Item
-	</button>
-	</div>
-	</header>
-	
-	{/* Body */}
-	<div className="flex min-h-screen">
-	{/* Sidebar */}
-	<aside className="w-64 bg-white shadow-sm p-4">
-	<h2 className="text-sm font-semibold text-gray-500 mb-3">
-	COLLECTIONS
-	</h2>
-	{collections.map((collection: Collection) => (
-		<button
-		key={collection.id}
-		onClick={() => handleCollectionChange(collection.id)}
-		className={`w-full text-left px-4 py-2 rounded mb-1 ${
-			collection.id === currentCollectionId
-			? "bg-maranics-primary text-white"
-			: "text-gray-700 hover:bg-gray-100"
-		}`}
-		>
-		{collection.name}
-		</button>
-	))}
-	</aside>
-	
-	{/* Main content */}
-	<main className="flex-1 p-6">
-	<h2 className="text-xl font-bold mb-4">{currentCollection.name}</h2>
-	
-	<FilterBar searchText={searchText} onSearchChange={handleSearchChange} />
-	
-	{viewMode === "table" ? (
-		<TableView
-		collection={currentCollection}
-		items={paginatedItems}
-		visibleFieldIds={visibleFieldIds[currentCollectionId] || []}
-		onToggleColumn={handleToggleColumn}
-		onUpdateItem={handleUpdateCell}
-		/>
-	) : (
-		<CardView
-		collection={currentCollection}
-		items={paginatedItems}
-		onEdit={openEditForm}
-		/>
-	)}
-	
-	{/* Pagination below the table/cards */}
-	<Pagination
-	totalItems={filteredItems.length}
-	itemsPerPage={itemsPerPage}
-	currentPage={currentPage}
-	onPageChange={setCurrentPage}
-	/>
-	</main>
-	</div>
-	
-	{/* Modal form for adding/editing items */}
-	{isFormOpen && (
-		<ItemForm
-		collection={currentCollection}
-		item={editingItem}
-		onSave={handleSave}
-		onClose={() => setIsFormOpen(false)}
-		/>
-	)}
-	</div>
+  <div className="min-h-screen bg-gray-50">
+    {/* Header */}
+    <header className="bg-white shadow-sm p-4 flex items-center justify-between">
+      <img
+        src="/src/assets/maranics_logo_dark.png"
+        alt="Maranics"
+        className="h-8"
+      />
+
+      <div className="flex items-center gap-3">
+        {/* View toggle */}
+        <button
+          onClick={() => setViewMode("table")}
+          className={`px-4 py-2 rounded text-sm font-medium ${
+            viewMode === "table"
+              ? "bg-maranics-primary text-white"
+              : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+          }`}
+        >
+          Table
+        </button>
+        <button
+          onClick={() => setViewMode("card")}
+          className={`px-4 py-2 rounded text-sm font-medium ${
+            viewMode === "card"
+              ? "bg-maranics-primary text-white"
+              : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+          }`}
+        >
+          Cards
+        </button>
+
+        {/* Add item */}
+        <button
+          onClick={openAddForm}
+          className="px-4 py-2 bg-maranics-primary text-white text-sm font-medium rounded-lg hover:bg-maranics-dark"
+        >
+          + Add Item
+        </button>
+      </div>
+    </header>
+
+    {/* Body */}
+    <div className="flex min-h-screen">
+      {/* Sidebar */}
+      <aside className="w-64 bg-white shadow-sm p-4">
+        <h2 className="text-sm font-semibold text-gray-500 mb-3">
+          COLLECTIONS
+        </h2>
+        {collections.map((collection: Collection) => (
+          <button
+            key={collection.id}
+            onClick={() => handleCollectionChange(collection.id)}
+            className={`w-full text-left px-4 py-2 rounded mb-1 ${
+              collection.id === currentCollectionId
+                ? "bg-maranics-primary text-white"
+                : "text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            {collection.name}
+          </button>
+        ))}
+      </aside>
+
+      {/* Main content */}
+      <main className="flex-1 p-6">
+        <h2 className="text-xl font-bold mb-4">{currentCollection.name}</h2>
+
+        <FilterBar
+          searchText={searchText}
+          onSearchChange={handleSearchChange}
+        />
+
+        {viewMode === "table" ? (
+          <TableView
+            collection={currentCollection}
+            items={paginatedItems}
+            visibleFieldIds={visibleFieldIds[currentCollectionId] || []}
+            onToggleColumn={handleToggleColumn}
+            onUpdateItem={handleUpdateCell}
+          />
+        ) : (
+          <CardView
+            collection={currentCollection}
+            items={paginatedItems}
+            onEdit={openEditForm}
+          />
+        )}
+
+        {/* Pagination below the table/cards */}
+        <Pagination
+          totalItems={filteredItems.length}
+          itemsPerPage={itemsPerPage}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+        />
+      </main>
+    </div>
+
+    {/* Modal form for adding/editing items */}
+    {isFormOpen && (
+      <ItemForm
+        collection={currentCollection}
+        item={editingItem}
+        onSave={handleSave}
+        onClose={() => setIsFormOpen(false)}
+      />
+    )}
+  </div>
 );
 }
 
