@@ -1,3 +1,11 @@
+import {
+	PanelLeftClose,
+	PanelLeftOpen,
+	Anchor,
+	Users,
+	Package,
+	Database,
+} from "lucide-react";
 import { useState } from "react";
 import { collections, sampleData } from "./data";
 import type { Collection, Item } from "./types";
@@ -16,6 +24,7 @@ function App() {
 	const [data, setData] = useState(sampleData);
 	const [currentPage, setCurrentPage] = useState(1);
 	const itemsPerPage = 5; // can make this dynamic later
+	const [sidebarOpen, setSidebarOpen] = useState(true);
 	
 	const [visibleFieldIds, setVisibleFieldIds] = useState<
 	Record<string, string[]>
@@ -60,7 +69,6 @@ const handleSearchChange = (text: string) => {
 	setSearchText(text);
 	setCurrentPage(1);
 };
-
 
 function handleToggleColumn(fieldId: string) {
 	setVisibleFieldIds((prev) => {
@@ -119,116 +127,153 @@ function openEditForm(item: Item) {
 	setIsFormOpen(true);
 }
 
+function CollectionIcon({ name }: { name: string }) {
+	if (name === "Anchor") return <Anchor className="w-4 h-4 shrink-0" />;
+	if (name === "Users") return <Users className="w-4 h-4 shrink-0" />;
+	if (name === "Package") return <Package className="w-4 h-4 shrink-0" />;
+	return <Database className="w-4 h-4 shrink-0" />;
+}
+
 return (
-  <div className="min-h-screen bg-gray-50">
-    {/* Header */}
-    <header className="bg-white shadow-sm p-4 flex items-center justify-between">
-      <img
-        src="/src/assets/maranics_logo_dark.png"
-        alt="Maranics"
-        className="h-8"
-      />
-
-      <div className="flex items-center gap-3">
-        {/* View toggle */}
-        <button
-          onClick={() => setViewMode("table")}
-          className={`px-4 py-2 rounded text-sm font-medium ${
-            viewMode === "table"
-              ? "bg-maranics-primary text-white"
-              : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-          }`}
-        >
-          Table
-        </button>
-        <button
-          onClick={() => setViewMode("card")}
-          className={`px-4 py-2 rounded text-sm font-medium ${
-            viewMode === "card"
-              ? "bg-maranics-primary text-white"
-              : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-          }`}
-        >
-          Cards
-        </button>
-
-        {/* Add item */}
-        <button
-          onClick={openAddForm}
-          className="px-4 py-2 bg-maranics-primary text-white text-sm font-medium rounded-lg hover:bg-maranics-dark"
-        >
-          + Add Item
-        </button>
-      </div>
-    </header>
-
-    {/* Body */}
-    <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-sm p-4">
-        <h2 className="text-sm font-semibold text-gray-500 mb-3">
-          COLLECTIONS
-        </h2>
-        {collections.map((collection: Collection) => (
-          <button
-            key={collection.id}
-            onClick={() => handleCollectionChange(collection.id)}
-            className={`w-full text-left px-4 py-2 rounded mb-1 ${
-              collection.id === currentCollectionId
-                ? "bg-maranics-primary text-white"
-                : "text-gray-700 hover:bg-gray-100"
-            }`}
-          >
-            {collection.name}
-          </button>
-        ))}
-      </aside>
-
-      {/* Main content */}
-      <main className="flex-1 p-6">
-        <h2 className="text-xl font-bold mb-4">{currentCollection.name}</h2>
-
-        <FilterBar
-          searchText={searchText}
-          onSearchChange={handleSearchChange}
-        />
-
-        {viewMode === "table" ? (
-          <TableView
-            collection={currentCollection}
-            items={paginatedItems}
-            visibleFieldIds={visibleFieldIds[currentCollectionId] || []}
-            onToggleColumn={handleToggleColumn}
-            onUpdateItem={handleUpdateCell}
-          />
-        ) : (
-          <CardView
-            collection={currentCollection}
-            items={paginatedItems}
-            onEdit={openEditForm}
-          />
-        )}
-
-        {/* Pagination below the table/cards */}
-        <Pagination
-          totalItems={filteredItems.length}
-          itemsPerPage={itemsPerPage}
-          currentPage={currentPage}
-          onPageChange={setCurrentPage}
-        />
-      </main>
-    </div>
-
-    {/* Modal form for adding/editing items */}
-    {isFormOpen && (
-      <ItemForm
-        collection={currentCollection}
-        item={editingItem}
-        onSave={handleSave}
-        onClose={() => setIsFormOpen(false)}
-      />
-    )}
-  </div>
+	<div className="min-h-screen bg-gray-50">
+	{/* Header */}
+	<header className="bg-white shadow-sm p-4 flex items-center justify-between">
+	<img
+	src="/src/assets/maranics_logo_dark.png"
+	alt="Maranics"
+	className="h-8"
+	/>
+	
+	<div className="flex items-center gap-3">
+	{/* View toggle */}
+	<button
+	onClick={() => setViewMode("table")}
+	className={`px-4 py-2 rounded text-sm font-medium ${
+		viewMode === "table"
+		? "bg-maranics-primary text-white"
+		: "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+	}`}
+	>
+	Table
+	</button>
+	<button
+	onClick={() => setViewMode("card")}
+	className={`px-4 py-2 rounded text-sm font-medium ${
+		viewMode === "card"
+		? "bg-maranics-primary text-white"
+		: "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+	}`}
+	>
+	Cards
+	</button>
+	
+	{/* Add item */}
+	<button
+	onClick={openAddForm}
+	className="px-4 py-2 bg-maranics-primary text-white text-sm font-medium rounded-lg hover:bg-maranics-dark"
+	>
+	+ Add Item
+	</button>
+	</div>
+	</header>
+	
+	{/* Body */}
+	<div className="flex min-h-screen">
+	{/* Sidebar */}
+	<aside
+	className={`bg-white shadow-sm flex flex-col transition-all duration-300 ${sidebarOpen ? "w-64" : "w-16"}`}
+	>
+	{/* Sidebar header */}
+	<div className="flex items-center justify-between p-4 border-b border-gray-100">
+	{sidebarOpen && (
+		<span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+		Collections
+		</span>
+	)}
+	<button
+	onClick={() => setSidebarOpen(!sidebarOpen)}
+	className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+	>
+	{sidebarOpen ? (
+		<PanelLeftClose className="w-4 h-4" />
+	) : (
+		<PanelLeftOpen className="w-4 h-4" />
+	)}
+	</button>
+	</div>
+	
+	{/* Collection buttons */}
+	<div className="flex-1 p-2 space-y-1">
+	{collections.map((collection: Collection) => {
+		const isActive = collection.id === currentCollectionId;
+		return (
+			<button
+			key={collection.id}
+			onClick={() => handleCollectionChange(collection.id)}
+			title={collection.name}
+			className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+				isActive
+				? "bg-maranics-primary text-white"
+				: "text-gray-600 hover:bg-gray-100"
+			}`}
+			>
+			<CollectionIcon name={collection.icon} />
+			{sidebarOpen && (
+				<span className="text-sm font-medium truncate">
+				{collection.name}
+				</span>
+			)}
+			</button>
+		);
+	})}
+	</div>
+	</aside>
+	
+	{/* Main content */}
+	<main className="flex-1 p-6">
+	<h2 className="text-xl font-bold mb-4">{currentCollection.name}</h2>
+	
+	<FilterBar
+	searchText={searchText}
+	onSearchChange={handleSearchChange}
+	/>
+	
+	{viewMode === "table" ? (
+		<TableView
+		collection={currentCollection}
+		items={paginatedItems}
+		visibleFieldIds={visibleFieldIds[currentCollectionId] || []}
+		onToggleColumn={handleToggleColumn}
+		onUpdateItem={handleUpdateCell}
+		/>
+	) : (
+		<CardView
+		collection={currentCollection}
+		items={paginatedItems}
+		onEdit={openEditForm}
+		/>
+	)}
+	
+	{/* Pagination below the table/cards */}
+	<Pagination
+	totalItems={filteredItems.length}
+	itemsPerPage={itemsPerPage}
+	currentPage={currentPage}
+	onPageChange={setCurrentPage}
+	/>
+	</main>
+	</div>
+	
+	{/* Modal form for adding/editing items */}
+	{isFormOpen && (
+		<ItemForm
+		collection={currentCollection}
+		item={editingItem}
+		onSave={handleSave}
+		onClose={() => setIsFormOpen(false)}
+		/>
+	)}
+	</div>
 );
 }
 
