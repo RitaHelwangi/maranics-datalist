@@ -1,21 +1,14 @@
-/**
-* CardView.tsx
-*
-* Displays collection items as cards instead of a table.
-* Better for mobile screens.
-* Uses Badge for select fields, same as TableView.
-*/
-
 import Badge from "./Badge";
 import type { Collection, Item, Field } from "../types";
 
 interface CardViewProps {
 	collection: Collection;
 	items: Item[];
+	onEdit: (item: Item) => void;
 }
 
-function CardView({ collection, items }: CardViewProps) {
-	// Same helper as TableView - renders the right content per field type
+function CardView({ collection, items, onEdit }: CardViewProps) {
+	
 	function renderValue(field: Field, item: Item) {
 		const value = item[field.id];
 		
@@ -44,6 +37,7 @@ function CardView({ collection, items }: CardViewProps) {
 			<div
 			key={item.id}
 			className="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow"
+			onClick={() => onEdit(item)}
 			>
 			{collection.fields.map((field: Field) => (
 				<div key={field.id} className="mb-3">
