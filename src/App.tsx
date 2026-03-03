@@ -3,7 +3,7 @@ import {
 	PanelLeftOpen,
 	Anchor,
 	Users,
-	Package,
+	Activity,
 	Database,
 } from "lucide-react";
 import { useState } from "react";
@@ -32,7 +32,7 @@ function App() {
 		// change this logic to hide some fields by default later
 		const defaults: Record<string, string[]> = {};
 		collections.forEach((c) => {
-			defaults[c.id] = c.fields.slice(0, 6).map((f) => f.id);
+			defaults[c.id] = c.fields.slice(0, 7).map((f) => f.id);
 		});
 		return defaults;
 	});
@@ -130,7 +130,7 @@ function openEditForm(item: Item) {
 function CollectionIcon({ name }: { name: string }) {
 	if (name === "Anchor") return <Anchor className="w-4 h-4 shrink-0" />;
 	if (name === "Users") return <Users className="w-4 h-4 shrink-0" />;
-	if (name === "Package") return <Package className="w-4 h-4 shrink-0" />;
+	if (name === "Activity") return <Activity className="w-4 h-4 shrink-0" />;
 	return <Database className="w-4 h-4 shrink-0" />;
 }
 

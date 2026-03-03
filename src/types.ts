@@ -4,6 +4,7 @@ export interface Field {
 	type: "text" | "date" | "select"; 
 	required: boolean; 
 	options?: Option[]; 
+	group?: string;
 }
 
 export interface Option {
