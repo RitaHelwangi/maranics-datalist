@@ -1,5 +1,14 @@
 import { useState } from "react";
-import { Eye, EyeOff, Columns, X } from "lucide-react";
+import {
+	Eye,
+	EyeOff,
+	Columns,
+	X,
+	Type,
+	Hash,
+	Calendar,
+	Tag,
+} from "lucide-react";
 import EditableCell from "./EditableCell";
 import type { Collection, Item, Field } from "../types";
 
@@ -9,6 +18,13 @@ interface TableViewProps {
 	visibleFieldIds: string[];
 	onToggleColumn: (fieldId: string) => void;
 	onUpdateItem: (itemId: string, fieldId: string, newValue: unknown) => void;
+}
+
+function FieldIcon({ type }: { type: string }) {
+	if (type === "date") return <Calendar className="w-3 h-3 text-gray-300" />;
+	if (type === "select") return <Tag className="w-3 h-3 text-gray-300" />;
+	if (type === "number") return <Hash className="w-3 h-3 text-gray-300" />;
+	return <Type className="w-3 h-3 text-gray-300" />;
 }
 
 function TableView({
@@ -23,51 +39,68 @@ function TableView({
 		fieldId: string;
 	} | null>(null);
 	
-	
 	const [showColumnPanel, setShowColumnPanel] = useState(false);
 	
 	const visibleFields = collection.fields.filter((f) =>
 		visibleFieldIds.includes(f.id),
 );
 
+const itemsPerPage = 8;
+const emptyRowCount = Math.max(0, itemsPerPage - items.length);
+
 return (
-	<div className="bg-white rounded-lg shadow overflow-hidden relative">
-	<table className="w-full">
-	<thead className="bg-gray-50">
-	<tr>
-	{visibleFields.map((field: Field) => (
+	<div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative mb-2">
+	<div className="overflow-auto">
+	<table className="w-full text-left border-separate border-spacing-0 min-w-max">
+	<thead>
+	<tr className="bg-gray-50">
+	{visibleFields.map((field: Field, idx) => (
 		<th
 		key={field.id}
-		className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase"
+		className={`px-4 py-3.5 border-b border-r border-gray-200 whitespace-nowrap ${
+			idx === 0 ? "sticky left-0 z-20 bg-gray-50" : ""
+		}`}
 		>
+		<div className="flex items-center gap-1.5">
+		<FieldIcon type={field.type} />
+		<span className="text-xs font-semibold text-gray-500">
 		{field.label}
+		</span>
+		</div>
 		</th>
 	))}
 	
-	{/*replace later: Column toggle button*/}
-	<th className="px-3 py-3 text-right">
+	<th className="px-3 py-3 border-b border-gray-200 bg-gray-50 sticky right-0 z-20 w-12">
 	<button
 	onClick={() => setShowColumnPanel(!showColumnPanel)}
-	className={`p-2 rounded-lg border transition-colors ${
+	className={`flex items-center justify-center w-8 h-8 mx-auto rounded-lg border transition-all ${
 		showColumnPanel
 		? "bg-maranics-primary text-white border-maranics-primary"
-		: "bg-white border-gray-300 text-gray-500 hover:border-maranics-primary"
+		: "bg-white border-gray-200 text-gray-400 hover:border-maranics-primary hover:text-maranics-primary"
 	}`}
 	title="Show/hide columns"
 	>
-	<Columns className="w-4 h-4" />
+	<Columns className="w-3.5 h-3.5" />
 	</button>
 	</th>
 	</tr>
 	</thead>
 	
-	<tbody className="divide-y divide-gray-200">
+	<tbody>
+
 	{items.map((item: Item) => (
-		<tr key={item.id} className="hover:bg-gray-50">
-		{visibleFields.map((field: Field) => (
+		<tr
+		key={item.id}
+		className="hover:bg-slate-50 transition-colors group"
+		>
+		{visibleFields.map((field: Field, fieldIdx) => (
 			<td
 			key={field.id}
-			className="text-sm text-gray-900 h-12 relative p-0"
+			className={`p-0 text-sm border-b border-r border-gray-100 h-12 relative ${
+				fieldIdx === 0
+				? "sticky left-0 z-10 bg-white group-hover:bg-slate-50 font-semibold"
+				: ""
+			}`}
 			>
 			<EditableCell
 			value={item[field.id]}
@@ -86,13 +119,28 @@ return (
 			/>
 			</td>
 		))}
-		<td className="px-3"></td>
+		<td className="border-b border-gray-100 sticky right-0 bg-gray-50/30 w-12" />
+		</tr>
+	))}
+	
+	{Array.from({ length: emptyRowCount }).map((_, i) => (
+		<tr key={`empty-${i}`}>
+		{visibleFields.map((field, fieldIdx) => (
+			<td
+			key={field.id}
+			className={`border-b border-r border-gray-100 h-12 ${
+				fieldIdx === 0 ? "sticky left-0 bg-white" : ""
+			}`}
+			/>
+		))}
+		<td className="border-b border-gray-100 sticky right-0 bg-gray-50/30 w-12" />
 		</tr>
 	))}
 	</tbody>
 	</table>
+	</div>
 	
-	{/* Show/hide columns panel */}
+	{/* Show/hide columns panel*/}
 	{showColumnPanel && (
 		<>
 		<div
@@ -100,13 +148,16 @@ return (
 		onClick={() => setShowColumnPanel(false)}
 		/>
 		
-		<div className="absolute top-12 right-4 z-50 w-64 bg-white border border-gray-200 rounded-lg shadow-xl">
-		<div className="p-3 border-b flex items-center justify-between">
-		<span className="text-xs font-semibold text-gray-600 uppercase">
+		<div className="absolute top-12 right-4 z-50 w-64 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden">
+		<div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50">
+		<span className="text-xs font-black text-gray-500 uppercase tracking-widest">
 		Show / Hide Columns
 		</span>
-		<button onClick={() => setShowColumnPanel(false)}>
-		<X className="w-4 h-4 text-gray-400" />
+		<button
+		onClick={() => setShowColumnPanel(false)}
+		className="text-gray-400 hover:text-gray-600"
+		>
+		<X className="w-4 h-4" />
 		</button>
 		</div>
 		

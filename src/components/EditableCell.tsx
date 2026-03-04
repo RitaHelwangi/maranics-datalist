@@ -18,8 +18,8 @@ function EditableCell({
 	onStartEditing,
 	onSave,
 }: EditableCellProps) {
-	
 	const [localValue, setLocalValue] = useState(value);
+	const [isHovered, setIsHovered] = useState(false); 
 	const inputRef = useRef<HTMLInputElement | HTMLSelectElement>(null);
 	
 	useEffect(() => {
@@ -30,6 +30,7 @@ function EditableCell({
 		if (isEditing && inputRef.current) {
 			inputRef.current.focus();
 		}
+		if (isEditing) setIsHovered(false);
 	}, [isEditing]);
 	
 	function handleBlur() {
@@ -39,7 +40,7 @@ function EditableCell({
 	function handleKeyDown(e: React.KeyboardEvent) {
 		if (e.key === "Enter") onSave(localValue);
 		if (e.key === "Escape") {
-			setLocalValue(value); 
+			setLocalValue(value);
 			onSave(value);
 		}
 	}
@@ -64,26 +65,29 @@ function EditableCell({
 		return (
 			<button
 			onClick={onStartEditing}
-			className="group w-full h-full flex items-center px-4 text-left hover:bg-green-50 transition-colors"
+			onMouseEnter={() => setIsHovered(true)}
+			onMouseLeave={() => setIsHovered(false)}
+			className="w-full h-full flex items-center px-4 text-left hover:bg-green-50 transition-colors"
 			>
 			{option ? (
 				<Badge label={option.label} color={option.color} />
 			) : (
-				<span className="text-sm text-gray-900 flex-1">
-				{displayValue}
-				</span>
+				<span className="text-sm text-gray-900 flex-1">{displayValue}</span>
 			)}
 			
-			<Pencil className="w-3 h-3 text-maranics-primary opacity-0 group-hover:opacity-60 ml-2" />
+			<Pencil
+			className={`w-3 h-3 text-maranics-primary ml-2 shrink-0 transition-opacity ${
+				isHovered ? "opacity-60" : "opacity-0"
+			}`}
+			/>
 			</button>
 		);
 	}
 	
-	// --- Edit mode ---
+	// Edit mode
 	const inputClass =
 	"absolute inset-0 w-full h-full px-4 text-sm border-2 border-maranics-primary bg-white outline-none z-20";
 	
-	// Show dropdown for select fields
 	if (field.type === "select" && field.options) {
 		return (
 			<select
@@ -103,7 +107,6 @@ function EditableCell({
 		);
 	}
 	
-	// Show date picker for date fields
 	if (field.type === "date") {
 		return (
 			<input
@@ -118,7 +121,6 @@ function EditableCell({
 		);
 	}
 	
-	// Default: text input
 	return (
 		<input
 		ref={inputRef as React.RefObject<HTMLInputElement>}
