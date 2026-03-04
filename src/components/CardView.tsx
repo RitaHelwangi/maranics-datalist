@@ -200,14 +200,14 @@ return (
 			
 			{/* Expanded section - grouped fields side by side */}
 			{isExpanded && (
-				<div className="border-t border-gray-100 px-5 py-4 bg-gray-50 rounded-b-xl overflow-x-auto">
-				<div className="flex gap-8 min-w-max">
+				<div className="border-t border-gray-100 px-4 py-4 bg-gray-50 rounded-b-xl">
+				<div className="flex flex-col md:flex-row md:gap-8 md:overflow-x-auto gap-4">
 				{Object.entries(grouped).map(([groupName, fields]) => (
-					<div key={groupName} className="min-w-36">
+					<div key={groupName} className="min-w-0 : min-w36">
 					<h4 className="text-xs font-bold text-maranics-primary uppercase tracking-wider mb-3 pb-1 border-b border-gray-200">
 					{groupName}
 					</h4>
-					<div className="space-y-2">
+					<div className="grid grid-cols-2 md:grid-cols-1 gap-3">
 					{fields.map((field: Field) => (
 						<div key={field.id}>
 						<p className="text-xs font-semibold text-gray-400 uppercase">
