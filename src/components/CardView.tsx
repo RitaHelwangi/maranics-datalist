@@ -1,14 +1,6 @@
 import Badge from "./Badge";
 import type { Collection, Item, Field } from "../types";
-import {
-	ChevronDown,
-	ChevronUp,
-	Edit,
-	Database,
-	Anchor,
-	Users,
-	Activity,
-} from "lucide-react";
+import {ChevronDown,ChevronUp,Edit,Database,Anchor,Users,Activity,} from "lucide-react";
 import { useState } from "react";
 
 interface CardViewProps {
@@ -24,6 +16,23 @@ function CollectionIcon({ name }: { name: string }) {
 	return <Database className="w-4 h-4" />;
 }
 
+function LabelValue({
+	label,
+	children,
+}: {
+	label: string;
+	children: React.ReactNode;
+}) {
+	return (
+		<div>
+		<p className="text-xs font-semibold text-gray-400 uppercase mb-1">
+		{label}
+		</p>
+		{children}
+		</div>
+	);
+}
+
 function CardView({ collection, items, onEdit }: CardViewProps) {
 	const [expandedIds, setExpandedIds] = useState<string[]>([]);
 	
@@ -33,14 +42,12 @@ function CardView({ collection, items, onEdit }: CardViewProps) {
 	);
 }
 
-
 const titleField =
 collection.fields.find((f) => f.id === "title") ||
 collection.fields.find((f) => f.id === "patientName") ||
 collection.fields.find((f) => f.id === "name") ||
 collection.fields[0];
 
-// showInCard flag to pick exactly which badges show in summary
 const cardBadgeFields = collection.fields
 .filter((f) => f.showInCard === true)
 .slice(0, 2);
@@ -50,8 +57,6 @@ const badgeField2 = cardBadgeFields[1] ?? null;
 const fromPortField = collection.fields.find((f) => f.id === "fromPort");
 const toPortField = collection.fields.find((f) => f.id === "toPort");
 const hasRoute = !!(fromPortField && toPortField);
-
-
 const dateField = collection.fields.find((f) => f.type === "date");
 
 const summaryFieldIds = [
@@ -116,13 +121,14 @@ return (
 				: "border-gray-200 hover:shadow-sm"
 			}`}
 			>
-			<div className="p-4 sm:p-5 grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 gap-4 items-center">
-			<div className="md:col-span-2 lg:col-span-3 flex items-start gap-3">
+		
+			<div className="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center lg:gap-4">
+			<div className="flex items-start gap-3 flex-1 min-w-0">
 			<div className="p-2 bg-gray-100 rounded-lg text-maranics-primary shrink-0 mt-1">
 			<CollectionIcon name={collection.icon} />
 			</div>
 			<div className="min-w-0">
-			<p className="text-sm font-bold text-gray-900 truncate md:whitespace-normal">
+			<p className="text-sm font-bold text-gray-900 truncate">
 			{String(item[titleField.id] ?? "—")}
 			</p>
 			<p className="text-xs text-gray-400 uppercase mt-0.5">
@@ -131,53 +137,43 @@ return (
 			</div>
 			</div>
 			
-			<div
-			className={`flex flex-col gap-2 lg:flex-row lg:gap-6 lg:items-center md:col-span-2 ${
-				hasRoute ? "lg:col-span-4" : "lg:col-span-6"
-			}`}
-			>
+			{/* Badges */}
+			<div className="flex flex-col gap-2 lg:flex-row lg:gap-6 lg:items-center flex-1 mt-3 lg:mt-0">
 			{badgeField1 && (
-				<div>
-				<p className="text-xs font-semibold text-gray-400 uppercase mb-1">
-				{badgeField1.label}
-				</p>
+				<LabelValue label={badgeField1.label}>
 				{renderValue(badgeField1, item)}
-				</div>
+				</LabelValue>
 			)}
 			{badgeField2 && (
-				<div>
-				<p className="text-xs font-semibold text-gray-400 uppercase mb-1">
-				{badgeField2.label}
-				</p>
+				<LabelValue label={badgeField2.label}>
 				{renderValue(badgeField2, item)}
-				</div>
+				</LabelValue>
 			)}
 			</div>
 			
 			{hasRoute && (
-				<div className="hidden lg:block lg:col-span-2">
-				<p className="text-xs font-semibold text-gray-400 uppercase mb-1">
-				Route
-				</p>
+				<div className="hidden lg:flex lg:flex-1">
+				<LabelValue label="Route">
 				<p className="text-sm font-medium text-gray-900">
 				{String(item[fromPortField!.id] ?? "—")} →{" "}
 				{String(item[toPortField!.id] ?? "—")}
 				</p>
+				</LabelValue>
 				</div>
 			)}
 			
 			{dateField && (
-				<div className="hidden lg:block lg:col-span-2">
-				<p className="text-xs font-semibold text-gray-400 uppercase mb-1">
-				{dateField.label}
-				</p>
+				<div className="hidden lg:flex lg:flex-1">
+				<LabelValue label={dateField.label}>
 				<div className="text-sm text-gray-900">
 				{renderValue(dateField, item)}
 				</div>
+				</LabelValue>
 				</div>
 			)}
 			
-			<div className="flex items-center justify-end gap-2 md:col-span-2 lg:col-span-1 lg:col-start-12">
+			{/* Buttons */}
+			<div className="flex items-center gap-2 shrink-0 mt-3 lg:mt-0">
 			<button
 			onClick={() => onEdit(item)}
 			className="flex items-center gap-1.5 h-9 px-3 border border-gray-300 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-50"
@@ -217,14 +213,11 @@ return (
 					</h4>
 					<div className="flex flex-col gap-3">
 					{fields.map((field: Field) => (
-						<div key={field.id}>
-						<p className="text-xs font-semibold text-gray-400 uppercase">
-						{field.label}
-						</p>
+						<LabelValue key={field.id} label={field.label}>
 						<div className="text-sm text-gray-900">
 						{renderValue(field, item)}
 						</div>
-						</div>
+						</LabelValue>
 					))}
 					</div>
 					</div>
