@@ -124,7 +124,7 @@ return (
 			</div>
 			
 			{/* Event + Status badges */}
-			<div className="grid grid-cols-1 xs:grid-cols-2 gap-2 md:col-span-2 lg:col-span-4">
+			<div className="flex flex-col gap-2 lg:flex-row lg:gap-6 md:col-span-2 lg:col-span-4 lg:items-center">
 			{eventField && (
 				<div>
 				<p className="text-xs font-semibold text-gray-400 uppercase mb-1">

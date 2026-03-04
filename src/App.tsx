@@ -1,4 +1,4 @@
-import { Menu } from "lucide-react";
+import { Menu, LayoutGrid, Table2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { collections, sampleData } from "./data";
 import type { Collection, Item } from "./types";
@@ -21,12 +21,12 @@ function App() {
 	const [editingItem, setEditingItem] = useState<Item | null>(null);
 	const [data, setData] = useState(sampleData);
 	const [currentPage, setCurrentPage] = useState(1);
-	const itemsPerPage = 5; // can make this dynamic later
+	const itemsPerPage = 8; // can make this dynamic later
 	const [sidebarOpen, setSidebarOpen] = useState(true);
 	const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(
 		false);
 		
-		const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+		const [isMobile, setIsMobile] = useState (window.innerWidth < 1024);
 		
 		useEffect(() => {
 			const handleResize = () => {
@@ -142,9 +142,9 @@ function openEditForm(item: Item) {
 
 
 return (
-	<div className="min-h-screen bg-gray-50">
+	<div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
 	{/* Header */}
-	<header className="bg-white shadow-sm px-3 h-16 flex items-center justify-between sticky top-0 z-40">
+	<header className="bg-white border-b border-gray-100 px-4 h-16 flex items-center justify-between shrink-0 z-40">
 	<div className="flex items-center gap-2 min-w-0">
 	<button
 	onClick={() => setIsMobileSidebarOpen(true)}
@@ -161,25 +161,27 @@ return (
 	</div>
 	
 	<div className="flex items-center gap-2 shrink-0">
-	<div className="hidden lg:flex gap-2">
+	<div className="hidden lg:flex items-center border border-gray-200 rounded-lg overflow-hidden">
 	<button
 	onClick={() => setViewMode("table")}
-	className={`px-4 py-2 rounded text-sm font-medium ${
+	className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors border-r border-gray-200 ${
 		viewMode === "table"
-		? "bg-maranics-primary text-white"
-		: "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+		? "bg-maranics-primary/10 text-maranics-primary"
+		: "bg-white text-gray-400 hover:text-gray-600"
 	}`}
 	>
+	<Table2 className="w-3.5 h-3.5" />
 	Table
 	</button>
 	<button
 	onClick={() => setViewMode("card")}
-	className={`px-4 py-2 rounded text-sm font-medium ${
+	className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${
 		viewMode === "card"
-		? "bg-maranics-primary text-white"
-		: "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+		? "bg-maranics-primary/10 text-maranics-primary"
+		: "bg-white text-gray-400 hover:text-gray-600"
 	}`}
 	>
+	<LayoutGrid className="w-3.5 h-3.5" />
 	Cards
 	</button>
 	</div>
@@ -194,7 +196,7 @@ return (
 	</header>
 	
 	{/* Body */}
-	<div className="flex min-h-screen">
+	<div className="flex flex-1 overflow-hidden">
 	{/* Sidebar component */}
 	<Sidebar
 	collections={collections}
@@ -207,14 +209,21 @@ return (
 	/>
 	
 	{/* Main content */}
-	<main className="flex-1 p-6">
-	<h2 className="text-xl font-bold mb-4">{currentCollection.name}</h2>
-	
+	<main className="flex-1 flex flex-col overflow-hidden min-w-0">
+	<div className="px-6 pt-6 pb-4 shrink-0 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3">
+	<div>
+	<h2 className="text-xl font-bold text-gray-900">
+	{currentCollection.name}
+	</h2>
+	</div>
 	<FilterBar
 	searchText={searchText}
 	onSearchChange={handleSearchChange}
 	/>
+	</div>
+	
 	{/* Table on desktop, cards on mobile */}
+	<div className="flex-1 overflow-auto px-6 pb-2">
 	{viewMode === "table" && !isMobile ? (
 		<TableView
 		collection={currentCollection}
@@ -230,14 +239,17 @@ return (
 		onEdit={openEditForm}
 		/>
 	)}
+	</div>
 	
 	{/* Pagination below the table/cards */}
+	<div className="shrink-0 px-6 py-3">
 	<Pagination
 	totalItems={filteredItems.length}
 	itemsPerPage={itemsPerPage}
 	currentPage={currentPage}
 	onPageChange={setCurrentPage}
 	/>
+	</div>
 	</main>
 	</div>
 	
