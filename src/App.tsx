@@ -154,7 +154,7 @@ return (
 	</button>
 	
 	<img
-	src="/src/assets/maranics_logo_dark.png"
+	src="./maranics_logo_dark.png"
 	alt="Maranics"
 	className="h-6 sm:h-8 min-w-0 max-w-[120px] sm:max-w-none object-contain"
 	/>
