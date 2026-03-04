@@ -1,8 +1,15 @@
 import Badge from "./Badge";
 import type { Collection, Item, Field } from "../types";
-import { ChevronDown, ChevronUp, Edit, Database, Anchor, Users, Activity } from "lucide-react";
+import {
+	ChevronDown,
+	ChevronUp,
+	Edit,
+	Database,
+	Anchor,
+	Users,
+	Activity,
+} from "lucide-react";
 import { useState } from "react";
-
 
 interface CardViewProps {
 	collection: Collection;
@@ -17,7 +24,6 @@ function CollectionIcon({ name }: { name: string }) {
 	return <Database className="w-4 h-4" />;
 }
 
-
 function CardView({ collection, items, onEdit }: CardViewProps) {
 	const [expandedIds, setExpandedIds] = useState<string[]>([]);
 	
@@ -27,22 +33,31 @@ function CardView({ collection, items, onEdit }: CardViewProps) {
 	);
 }
 
+
 const titleField =
 collection.fields.find((f) => f.id === "title") ||
 collection.fields.find((f) => f.id === "patientName") ||
 collection.fields.find((f) => f.id === "name") ||
 collection.fields[0];
 
-const eventField = collection.fields.find((f) => f.id === "event");
-const statusField = collection.fields.find((f) => f.id === "status");
+// showInCard flag to pick exactly which badges show in summary
+const cardBadgeFields = collection.fields
+.filter((f) => f.showInCard === true)
+.slice(0, 2);
+const badgeField1 = cardBadgeFields[0] ?? null;
+const badgeField2 = cardBadgeFields[1] ?? null;
+
 const fromPortField = collection.fields.find((f) => f.id === "fromPort");
 const toPortField = collection.fields.find((f) => f.id === "toPort");
+const hasRoute = !!(fromPortField && toPortField);
+
+
 const dateField = collection.fields.find((f) => f.type === "date");
 
 const summaryFieldIds = [
 	titleField?.id,
-	eventField?.id,
-	statusField?.id,
+	badgeField1?.id,
+	badgeField2?.id,
 	fromPortField?.id,
 	toPortField?.id,
 	dateField?.id,
@@ -52,7 +67,6 @@ const extraFields = collection.fields.filter(
 	(f) => !summaryFieldIds.includes(f.id),
 );
 
-// Group extra fields by their group property
 function groupFields(fields: Field[]) {
 	return fields.reduce(
 		(groups, field) => {
@@ -67,12 +81,10 @@ function groupFields(fields: Field[]) {
 
 function renderValue(field: Field, item: Item) {
 	const value = item[field.id];
-	
 	if (field.type === "select" && field.options) {
-		const option = field.options?.find((o) => o.value === value);
+		const option = field.options.find((o) => o.value === value);
 		if (option) return <Badge label={option.label} color={option.color} />;
 	}
-	
 	if (field.type === "date" && value) {
 		return (
 			<span>
@@ -86,7 +98,6 @@ function renderValue(field: Field, item: Item) {
 			</span>
 		);
 	}
-	
 	return <span>{String(value ?? "—")}</span>;
 }
 
@@ -105,58 +116,56 @@ return (
 				: "border-gray-200 hover:shadow-sm"
 			}`}
 			>
-			{/* Summary row - responsive grid */}
 			<div className="p-4 sm:p-5 grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 gap-4 items-center">
-			{/* Title + collection icon */}
 			<div className="md:col-span-2 lg:col-span-3 flex items-start gap-3">
 			<div className="p-2 bg-gray-100 rounded-lg text-maranics-primary shrink-0 mt-1">
 			<CollectionIcon name={collection.icon} />
 			</div>
 			<div className="min-w-0">
-			<p className="text-xs font-semibold text-gray-400 uppercase mb-0.5">
-			{collection.name}
-			</p>
 			<p className="text-sm font-bold text-gray-900 truncate md:whitespace-normal">
 			{String(item[titleField.id] ?? "—")}
 			</p>
-			<p className="text-xs text-gray-400">{item.id}</p>
+			<p className="text-xs text-gray-400 uppercase mt-0.5">
+			{collection.name}
+			</p>
 			</div>
 			</div>
 			
-			{/* Event + Status badges */}
-			<div className="flex flex-col gap-2 lg:flex-row lg:gap-6 md:col-span-2 lg:col-span-4 lg:items-center">
-			{eventField && (
+			<div
+			className={`flex flex-col gap-2 lg:flex-row lg:gap-6 lg:items-center md:col-span-2 ${
+				hasRoute ? "lg:col-span-4" : "lg:col-span-6"
+			}`}
+			>
+			{badgeField1 && (
 				<div>
 				<p className="text-xs font-semibold text-gray-400 uppercase mb-1">
-				{eventField.label}
+				{badgeField1.label}
 				</p>
-				{renderValue(eventField, item)}
+				{renderValue(badgeField1, item)}
 				</div>
 			)}
-			{statusField && (
+			{badgeField2 && (
 				<div>
 				<p className="text-xs font-semibold text-gray-400 uppercase mb-1">
-				{statusField.label}
+				{badgeField2.label}
 				</p>
-				{renderValue(statusField, item)}
+				{renderValue(badgeField2, item)}
 				</div>
 			)}
 			</div>
 			
-			{/* Route - hidden on mobile */}
-			{fromPortField && toPortField && (
+			{hasRoute && (
 				<div className="hidden lg:block lg:col-span-2">
 				<p className="text-xs font-semibold text-gray-400 uppercase mb-1">
 				Route
 				</p>
 				<p className="text-sm font-medium text-gray-900">
-				{String(item[fromPortField.id] ?? "—")} →{" "}
-				{String(item[toPortField.id] ?? "—")}
+				{String(item[fromPortField!.id] ?? "—")} →{" "}
+				{String(item[toPortField!.id] ?? "—")}
 				</p>
 				</div>
 			)}
 			
-			{/* Date - hidden on mobile */}
 			{dateField && (
 				<div className="hidden lg:block lg:col-span-2">
 				<p className="text-xs font-semibold text-gray-400 uppercase mb-1">
@@ -168,8 +177,7 @@ return (
 				</div>
 			)}
 			
-			{/* Action buttons */}
-			<div className="flex items-center justify-end gap-2 md:col-span-2 lg:col-span-1">
+			<div className="flex items-center justify-end gap-2 md:col-span-2 lg:col-span-1 lg:col-start-12">
 			<button
 			onClick={() => onEdit(item)}
 			className="flex items-center gap-1.5 h-9 px-3 border border-gray-300 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-50"
@@ -198,16 +206,16 @@ return (
 			</div>
 			</div>
 			
-			{/* Expanded section - grouped fields side by side */}
+			{/* Expanded section */}
 			{isExpanded && (
 				<div className="border-t border-gray-100 px-4 py-4 bg-gray-50 rounded-b-xl">
-				<div className="flex flex-col md:flex-row md:gap-8 md:overflow-x-auto gap-4">
+				<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
 				{Object.entries(grouped).map(([groupName, fields]) => (
-					<div key={groupName} className="min-w-0 : min-w36">
+					<div key={groupName}>
 					<h4 className="text-xs font-bold text-maranics-primary uppercase tracking-wider mb-3 pb-1 border-b border-gray-200">
 					{groupName}
 					</h4>
-					<div className="grid grid-cols-2 md:grid-cols-1 gap-3">
+					<div className="flex flex-col gap-3">
 					{fields.map((field: Field) => (
 						<div key={field.id}>
 						<p className="text-xs font-semibold text-gray-400 uppercase">

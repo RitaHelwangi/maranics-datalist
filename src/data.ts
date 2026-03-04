@@ -27,6 +27,7 @@ export const collections: Collection[] = [
 				type: "select",
 				required: true,
 				group: "General",
+				showInCard: true,
 				options: [
 					{ value: "arrival", label: "Arrival", color: "#A855F7" },
 					{ value: "departure", label: "Departure", color: "#F59E0B" },
@@ -179,6 +180,7 @@ export const collections: Collection[] = [
 				type: "select",
 				required: false,
 				group: "Reporting",
+				showInCard: true,
 				options: [
 					{ value: "notSubmitted", label: "Not Submitted", color: "#EF4444" },
 					{ value: "submitted", label: "Submitted", color: "#10B981" },
@@ -213,6 +215,7 @@ export const collections: Collection[] = [
 				type: "select",
 				required: true,
 				group: "Work",
+				showInCard: true,
 				options: [
 					{ value: "engineering", label: "Engineering", color: "#3B82F6" },
 					{ value: "operations", label: "Operations", color: "#8FB63E" },
@@ -266,6 +269,7 @@ export const collections: Collection[] = [
 				type: "select",
 				required: true,
 				group: "Treatment",
+				showInCard: true,
 				options: [
 					{ value: "cleaning", label: "Cleaning", color: "#10B981" },
 					{ value: "filling", label: "Filling", color: "#F59E0B" },
@@ -287,6 +291,7 @@ export const collections: Collection[] = [
 				type: "select",
 				required: true,
 				group: "Treatment",
+				showInCard: true,
 				options: [
 					{ value: "scheduled", label: "Scheduled", color: "#3B82F6" },
 					{ value: "completed", label: "Completed", color: "#10B981" },

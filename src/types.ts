@@ -1,10 +1,11 @@
 export interface Field {
-	id: string; 
-	label: string; 
-	type: "text" | "date" | "select"; 
-	required: boolean; 
-	options?: Option[]; 
+	id: string;
+	label: string;
+	type: "text" | "date" | "select";
+	required: boolean;
+	options?: Option[];
 	group?: string;
+	showInCard?: boolean;
 }
 
 export interface Option {
