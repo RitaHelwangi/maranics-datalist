@@ -5,7 +5,6 @@ import type { Collection, Item } from "./types";
 import TableView from "./components/TableView";
 import CardView from "./components/CardView";
 import FilterBar from "./components/FilterBar";
-import FilterPanel from "./components/FilterPanel"; 
 import ItemForm from "./components/ItemForm";
 import Pagination from "./components/Pagination";
 import Sidebar from "./components/Sidebar";
@@ -22,63 +21,59 @@ function App() {
 	const [editingItem, setEditingItem] = useState<Item | null>(null);
 	const [data, setData] = useState(sampleData);
 	const [currentPage, setCurrentPage] = useState(1);
-	const itemsPerPage = 8;
+	const itemsPerPage = 8; // can make this dynamic later
 	const [sidebarOpen, setSidebarOpen] = useState(true);
-	const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-	const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
-	const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false); 
-	const [activeFilters, setActiveFilters] = useState<Record<string, string>>(
-		{},
-	); 
-	
-	useEffect(() => {
-		const handleResize = () => {
-			const mobile = window.innerWidth < 1024;
-			setIsMobile(mobile);
-			if (mobile) setViewMode("card");
-		};
-		window.addEventListener("resize", handleResize);
-		return () => window.removeEventListener("resize", handleResize);
-	}, []);
-	
-	const [visibleFieldIds, setVisibleFieldIds] = useState<
-	Record<string, string[]>
-	>(() => {
-		const defaults: Record<string, string[]> = {};
-		collections.forEach((c) => {
-			defaults[c.id] = c.fields.slice(0, 7).map((f) => f.id);
+	const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(
+		false);
+		
+		const [isMobile, setIsMobile] = useState (window.innerWidth < 1024);
+		
+		useEffect(() => {
+			const handleResize = () => {
+				const mobile = window.innerWidth < 1024;
+				setIsMobile(mobile);
+				if (mobile) setViewMode("card");
+			};
+			window.addEventListener("resize", handleResize);
+			return () => window.removeEventListener("resize", handleResize);
+		}, []);
+		
+		const [visibleFieldIds, setVisibleFieldIds] = useState<
+		Record<string, string[]>
+		>(() => {
+			// change this logic to hide some fields by default later
+			const defaults: Record<string, string[]> = {};
+			collections.forEach((c) => {
+				defaults[c.id] = c.fields.slice(0, 7).map((f) => f.id);
+			});
+			return defaults;
 		});
-		return defaults;
-	});
-	
-	const currentCollection = collections.find(
-		(c: Collection) => c.id === currentCollectionId,
-	)!;
-	
-	const allItems = data[currentCollectionId] || [];
-	
-	// Search + active filters combined
-	const filteredItems = allItems.filter((item: Item) => {
-		const matchesSearch = currentCollection.fields.some((field) =>
-			String(item[field.id] ?? "")
+		
+		const currentCollection = collections.find(
+			(c: Collection) => c.id === currentCollectionId,
+		)!;
+		
+		const allItems = data[currentCollectionId] || [];
+		
+		// Filter search
+		const filteredItems = allItems.filter((item: Item) =>
+			currentCollection.fields.some((field) =>
+				String(item[field.id] ?? "")
 		.toLowerCase()
 		.includes(searchText.toLowerCase()),
-	);
-	const matchesFilters = Object.entries(activeFilters).every(
-		([fieldId, value]) => !value || String(item[fieldId] ?? "") === value,
-	);
-	return matchesSearch && matchesFilters;
-});
+	),
+);
 
+// Slice filtered items for current page
 const paginatedItems = filteredItems.slice(
 	(currentPage - 1) * itemsPerPage,
 	currentPage * itemsPerPage,
 );
 
+// Switch collection and reset search
 function handleCollectionChange(id: string) {
 	setCurrentCollectionId(id);
 	setSearchText("");
-	setActiveFilters({}); 
 	setCurrentPage(1);
 }
 
@@ -97,6 +92,7 @@ function handleToggleColumn(fieldId: string) {
 	});
 }
 
+// update: inline editing
 function handleUpdateCell(
 	itemId: string,
 	fieldId: string,
@@ -110,6 +106,7 @@ function handleUpdateCell(
 }));
 }
 
+// Add/edit item form submission
 function handleSave(formData: Item) {
 	if (editingItem) {
 		setData((prev) => ({
@@ -121,6 +118,7 @@ function handleSave(formData: Item) {
 		),
 	}));
 } else {
+	// Add new item
 	const newItem = { ...formData, id: Date.now().toString() };
 	setData((prev) => ({
 		...prev,
@@ -141,7 +139,7 @@ function openEditForm(item: Item) {
 	setIsFormOpen(true);
 }
 
-const activeFilterCount = Object.values(activeFilters).filter(Boolean).length;
+
 
 return (
 	<div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
@@ -154,6 +152,7 @@ return (
 	>
 	<Menu className="w-5 h-5" />
 	</button>
+	
 	<img
 	src="./maranics_logo_dark.png"
 	alt="Maranics"
@@ -198,6 +197,7 @@ return (
 	
 	{/* Body */}
 	<div className="flex flex-1 overflow-hidden">
+	{/* Sidebar component */}
 	<Sidebar
 	collections={collections}
 	currentCollectionId={currentCollectionId}
@@ -208,20 +208,21 @@ return (
 	onMobileClose={() => setIsMobileSidebarOpen(false)}
 	/>
 	
+	{/* Main content */}
 	<main className="flex-1 flex flex-col overflow-hidden min-w-0">
 	<div className="px-6 pt-6 pb-4 shrink-0 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3">
+	<div>
 	<h2 className="text-xl font-bold text-gray-900">
 	{currentCollection.name}
 	</h2>
-	
+	</div>
 	<FilterBar
 	searchText={searchText}
 	onSearchChange={handleSearchChange}
-	activeFilterCount={activeFilterCount}
-	onOpenFilters={() => setIsFilterPanelOpen(true)}
 	/>
 	</div>
 	
+	{/* Table on desktop, cards on mobile */}
 	<div className="flex-1 overflow-auto px-6 pb-2">
 	{viewMode === "table" && !isMobile ? (
 		<TableView
@@ -240,6 +241,7 @@ return (
 	)}
 	</div>
 	
+	{/* Pagination below the table/cards */}
 	<div className="shrink-0 px-6 py-3">
 	<Pagination
 	totalItems={filteredItems.length}
@@ -251,17 +253,7 @@ return (
 	</main>
 	</div>
 	
-	<FilterPanel
-	collection={currentCollection}
-	activeFilters={activeFilters}
-	onFilterChange={(fieldId, value) =>
-		setActiveFilters((prev) => ({ ...prev, [fieldId]: value }))
-	}
-	onClear={() => setActiveFilters({})}
-	isOpen={isFilterPanelOpen}
-	onClose={() => setIsFilterPanelOpen(false)}
-	/>
-	
+	{/* Modal form for adding/editing items */}
 	{isFormOpen && (
 		<ItemForm
 		collection={currentCollection}
