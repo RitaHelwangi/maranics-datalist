@@ -1,32 +1,29 @@
+export interface Option {
+	value: string;
+	label: string;
+	color: string;
+}
+
 export interface Field {
 	id: string;
 	label: string;
 	type: "text" | "date" | "select";
-	required: boolean;
+	required?: boolean;
 	options?: Option[];
 	group?: string;
 	showInCard?: boolean;
-}
-
-export interface Option {
-	value: string; 
-	label: string; 
-	color: string; 
+	filterable?: boolean; 
 }
 
 export interface Collection {
-	id: string; 
-	name: string; 
-	icon: string; 
-	fields: Field[]; 
+	id: string;
+	name: string;
+	icon: string;
+	fields: Field[];
 }
 
 export interface Item {
-	id: string; 
-	[key: string]: unknown; 
+	id: string;
+	[key: string]: unknown;
 }
 
-export interface Filters {
-	search?: string; 
-	[key: string]: unknown; 
-}

@@ -28,6 +28,7 @@ export const collections: Collection[] = [
 				required: true,
 				group: "General",
 				showInCard: true,
+				filterable: true,
 				options: [
 					{ value: "arrival", label: "Arrival", color: "#A855F7" },
 					{ value: "departure", label: "Departure", color: "#F59E0B" },
@@ -160,6 +161,7 @@ export const collections: Collection[] = [
 				type: "select",
 				required: false,
 				group: "Reporting",
+				filterable: true,
 				options: [
 					{ value: "bb1a8097", label: "Jarle Auby", color: "#6366F1" },
 					{
@@ -181,6 +183,7 @@ export const collections: Collection[] = [
 				required: false,
 				group: "Reporting",
 				showInCard: true,
+				filterable: true,
 				options: [
 					{ value: "notSubmitted", label: "Not Submitted", color: "#EF4444" },
 					{ value: "submitted", label: "Submitted", color: "#10B981" },
@@ -216,6 +219,7 @@ export const collections: Collection[] = [
 				required: true,
 				group: "Work",
 				showInCard: true,
+				filterable: true,
 				options: [
 					{ value: "engineering", label: "Engineering", color: "#3B82F6" },
 					{ value: "operations", label: "Operations", color: "#8FB63E" },
@@ -257,6 +261,7 @@ export const collections: Collection[] = [
 				type: "select",
 				required: true,
 				group: "Patient",
+				filterable: true,
 				options: [
 					{ value: "dr-smith", label: "Dr. Smith", color: "#6366F1" },
 					{ value: "dr-jones", label: "Dr. Jones", color: "#8B5CF6" },
@@ -270,6 +275,7 @@ export const collections: Collection[] = [
 				required: true,
 				group: "Treatment",
 				showInCard: true,
+				filterable: true,
 				options: [
 					{ value: "cleaning", label: "Cleaning", color: "#10B981" },
 					{ value: "filling", label: "Filling", color: "#F59E0B" },
@@ -292,6 +298,7 @@ export const collections: Collection[] = [
 				required: true,
 				group: "Treatment",
 				showInCard: true,
+				filterable: true,
 				options: [
 					{ value: "scheduled", label: "Scheduled", color: "#3B82F6" },
 					{ value: "completed", label: "Completed", color: "#10B981" },
@@ -326,6 +333,7 @@ export const collections: Collection[] = [
 				type: "select",
 				required: false,
 				group: "Billing",
+				filterable: true,
 				options: [
 					{ value: "covered", label: "Covered", color: "#10B981" },
 					{ value: "partial", label: "Partial", color: "#F59E0B" },
