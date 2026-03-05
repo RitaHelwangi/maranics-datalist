@@ -13,6 +13,8 @@ export interface Field {
 	group?: string;
 	showInCard?: boolean;
 	filterable?: boolean; 
+	routeFrom?: boolean;
+	routeTo?: boolean;
 }
 
 export interface Collection {

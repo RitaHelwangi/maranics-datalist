@@ -57,6 +57,8 @@ export const collections: Collection[] = [
 				type: "text",
 				required: false,
 				group: "Route",
+				routeFrom: true,
+
 			},
 			{
 				id: "toPort",
@@ -64,6 +66,7 @@ export const collections: Collection[] = [
 				type: "text",
 				required: false,
 				group: "Route",
+				routeTo: true,
 			},
 			{
 				id: "latitude",

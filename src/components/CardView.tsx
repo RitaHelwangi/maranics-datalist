@@ -48,8 +48,8 @@ function CardView({ collection, items, onEdit }: CardViewProps) {
 	const badgeField1 = cardBadgeFields[0] ?? null;
 	const badgeField2 = cardBadgeFields[1] ?? null;
 	
-	const fromPortField = collection.fields.find((f) => f.id === "fromPort");
-	const toPortField = collection.fields.find((f) => f.id === "toPort");
+	const fromPortField = collection.fields.find((f) => f.routeFrom);
+	const toPortField = collection.fields.find((f) => f.routeTo);
 	const hasRoute = !!(fromPortField && toPortField);
 	const dateField = collection.fields.find((f) => f.type === "date");
 	
