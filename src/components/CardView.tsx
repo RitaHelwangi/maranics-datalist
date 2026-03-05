@@ -1,6 +1,6 @@
 import Badge from "./Badge";
 import type { Collection, Item, Field } from "../types";
-import {ChevronDown,ChevronUp,Edit,Database,Anchor,Users,Activity,} from "lucide-react";
+import { X, Edit, Database, Anchor, Users, Activity } from "lucide-react";
 import { useState } from "react";
 
 interface CardViewProps {
@@ -34,202 +34,235 @@ function LabelValue({
 }
 
 function CardView({ collection, items, onEdit }: CardViewProps) {
-	const [expandedIds, setExpandedIds] = useState<string[]>([]);
+	const [modalItem, setModalItem] = useState<Item | null>(null);
 	
-	function toggleExpand(id: string) {
-		setExpandedIds((prev) =>
-			prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
+	const titleField =
+	collection.fields.find((f) => f.id === "title") ||
+	collection.fields.find((f) => f.id === "patientName") ||
+	collection.fields.find((f) => f.id === "name") ||
+	collection.fields[0];
+	
+	const cardBadgeFields = collection.fields
+	.filter((f) => f.showInCard === true)
+	.slice(0, 2);
+	const badgeField1 = cardBadgeFields[0] ?? null;
+	const badgeField2 = cardBadgeFields[1] ?? null;
+	
+	const fromPortField = collection.fields.find((f) => f.id === "fromPort");
+	const toPortField = collection.fields.find((f) => f.id === "toPort");
+	const hasRoute = !!(fromPortField && toPortField);
+	const dateField = collection.fields.find((f) => f.type === "date");
+	
+	const subtitleField = collection.fields.find(
+		(f) => f.type === "text" && f.id !== titleField?.id,
 	);
-}
-
-const titleField =
-collection.fields.find((f) => f.id === "title") ||
-collection.fields.find((f) => f.id === "patientName") ||
-collection.fields.find((f) => f.id === "name") ||
-collection.fields[0];
-
-const cardBadgeFields = collection.fields
-.filter((f) => f.showInCard === true)
-.slice(0, 2);
-const badgeField1 = cardBadgeFields[0] ?? null;
-const badgeField2 = cardBadgeFields[1] ?? null;
-
-const fromPortField = collection.fields.find((f) => f.id === "fromPort");
-const toPortField = collection.fields.find((f) => f.id === "toPort");
-const hasRoute = !!(fromPortField && toPortField);
-const dateField = collection.fields.find((f) => f.type === "date");
-
-const summaryFieldIds = [
-	titleField?.id,
-	badgeField1?.id,
-	badgeField2?.id,
-	fromPortField?.id,
-	toPortField?.id,
-	dateField?.id,
-].filter(Boolean);
-
-const extraFields = collection.fields.filter(
-	(f) => !summaryFieldIds.includes(f.id),
-);
-
-function groupFields(fields: Field[]) {
-	return fields.reduce(
-		(groups, field) => {
-			const groupName = field.group || "General";
-			if (!groups[groupName]) groups[groupName] = [];
-			groups[groupName].push(field);
-			return groups;
-		},
-		{} as Record<string, Field[]>,
+	
+	const summaryFieldIds = [
+		titleField?.id,
+		subtitleField?.id,
+		badgeField1?.id,
+		badgeField2?.id,
+		fromPortField?.id,
+		toPortField?.id,
+		dateField?.id,
+	].filter(Boolean);
+	
+	const extraFields = collection.fields.filter(
+		(f) => !summaryFieldIds.includes(f.id),
 	);
-}
-
-function renderValue(field: Field, item: Item) {
-	const value = item[field.id];
-	if (field.type === "select" && field.options) {
-		const option = field.options.find((o) => o.value === value);
-		if (option) return <Badge label={option.label} color={option.color} />;
-	}
-	if (field.type === "date" && value) {
-		return (
-			<span>
-			{new Date(String(value)).toLocaleString("en-GB", {
-				day: "2-digit",
-				month: "2-digit",
-				year: "numeric",
-				hour: "2-digit",
-				minute: "2-digit",
-			})}
-			</span>
+	
+	function groupFields(fields: Field[]) {
+		return fields.reduce(
+			(groups, field) => {
+				const groupName = field.group || "General";
+				if (!groups[groupName]) groups[groupName] = [];
+				groups[groupName].push(field);
+				return groups;
+			},
+			{} as Record<string, Field[]>,
 		);
 	}
-	return <span>{String(value ?? "—")}</span>;
-}
-
-return (
-	<div className="space-y-3">
-	{items.map((item: Item) => {
-		const isExpanded = expandedIds.includes(item.id);
-		const grouped = groupFields(extraFields);
-		
-		return (
+	
+	function renderValue(field: Field, item: Item) {
+		const value = item[field.id];
+		if (field.type === "select" && field.options) {
+			const option = field.options.find((o) => o.value === value);
+			if (option) return <Badge label={option.label} color={option.color} />;
+		}
+		if (field.type === "date" && value) {
+			return (
+				<span>
+				{new Date(String(value)).toLocaleString("en-GB", {
+					day: "2-digit",
+					month: "short",
+					year: "numeric",
+				})}
+				</span>
+			);
+		}
+		return <span>{String(value ?? "—")}</span>;
+	}
+	
+	const grouped = groupFields(extraFields);
+	
+	return (
+		<>
+		<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+		{items.map((item: Item) => (
 			<div
 			key={item.id}
-			className={`bg-white rounded-xl border transition-all ${
-				isExpanded
-				? "border-maranics-primary shadow-md"
-				: "border-gray-200 hover:shadow-sm"
-			}`}
+			className="bg-white rounded-xl border border-gray-200 hover:shadow-sm transition-all"
 			>
-		
-			<div className="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center lg:gap-4">
-			<div className="flex items-start gap-3 flex-1 min-w-0">
-			<div className="p-2 bg-gray-100 rounded-lg text-maranics-primary shrink-0 mt-1">
+			<div className="p-4">
+			<div className="flex items-center gap-2 mb-3">
+			<div className="p-1.5 bg-maranics-primary/10 rounded-lg text-maranics-primary shrink-0">
 			<CollectionIcon name={collection.icon} />
 			</div>
-			<div className="min-w-0">
+			<div className="min-w-0 flex-1">
 			<p className="text-sm font-bold text-gray-900 truncate">
 			{String(item[titleField.id] ?? "—")}
 			</p>
-			<p className="text-xs text-gray-400 uppercase mt-0.5">
-			{collection.name}
-			</p>
+			{subtitleField && (
+				<p className="text-xs text-gray-400 truncate mt-0.5">
+				{String(item[subtitleField.id] ?? "")}
+				</p>
+			)}
 			</div>
 			</div>
 			
-			{/* Badges */}
-			<div className="flex flex-col gap-2 lg:flex-row lg:gap-6 lg:items-center flex-1 mt-3 lg:mt-0">
-			{badgeField1 && (
-				<LabelValue label={badgeField1.label}>
-				{renderValue(badgeField1, item)}
-				</LabelValue>
+			{(badgeField1 || badgeField2) && (
+				<div className="flex gap-6 mb-3">
+				{badgeField1 && (
+					<LabelValue label={badgeField1.label}>
+					<div className="text-sm">
+					{renderValue(badgeField1, item)}
+					</div>
+					</LabelValue>
+				)}
+				{badgeField2 && (
+					<LabelValue label={badgeField2.label}>
+					<div className="text-sm">
+					{renderValue(badgeField2, item)}
+					</div>
+					</LabelValue>
+				)}
+				</div>
 			)}
-			{badgeField2 && (
-				<LabelValue label={badgeField2.label}>
-				{renderValue(badgeField2, item)}
-				</LabelValue>
-			)}
-			</div>
 			
 			{hasRoute && (
-				<div className="hidden lg:flex lg:flex-1">
-				<LabelValue label="Route">
-				<p className="text-sm font-medium text-gray-900">
+				<p className="text-sm text-gray-700 font-medium mb-2">
 				{String(item[fromPortField!.id] ?? "—")} →{" "}
 				{String(item[toPortField!.id] ?? "—")}
 				</p>
-				</LabelValue>
-				</div>
 			)}
 			
-			{dateField && (
-				<div className="hidden lg:flex lg:flex-1">
-				<LabelValue label={dateField.label}>
-				<div className="text-sm text-gray-900">
-				{renderValue(dateField, item)}
-				</div>
-				</LabelValue>
-				</div>
+			<div className="flex items-center justify-between gap-2 mt-1">
+			{dateField ? (
+				<p className="text-xs text-gray-400">
+				{String(
+					renderValue(dateField, item).props?.children ?? "—",
+				)}
+				</p>
+			) : (
+				<span />
 			)}
 			
-			{/* Buttons */}
-			<div className="flex items-center gap-2 shrink-0 mt-3 lg:mt-0">
+			<div className="flex items-center gap-2 shrink-0">
 			<button
 			onClick={() => onEdit(item)}
-			className="flex items-center gap-1.5 h-9 px-3 border border-gray-300 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-50"
+			className="flex items-center gap-1.5 h-8 px-3 border border-gray-200 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors"
 			>
-			<Edit className="w-3.5 h-3.5" />
-			<span className="hidden md:inline">Edit</span>
+			<Edit className="w-3 h-3" />
+			Edit
 			</button>
-			
 			{extraFields.length > 0 && (
 				<button
-				onClick={() => toggleExpand(item.id)}
-				className={`flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium transition-colors ${
-					isExpanded
-					? "bg-maranics-primary text-white"
-					: "bg-maranics-primary/10 text-maranics-primary hover:bg-maranics-primary/20"
-				}`}
+				onClick={() => setModalItem(item)}
+				className="flex items-center gap-1 h-8 px-3 rounded-lg text-xs font-medium bg-maranics-primary/10 text-maranics-primary hover:bg-maranics-primary/20 transition-colors"
 				>
-				{isExpanded ? "Less" : "More"}
-				{isExpanded ? (
-					<ChevronUp className="w-3.5 h-3.5" />
-				) : (
-					<ChevronDown className="w-3.5 h-3.5" />
-				)}
+				More
 				</button>
 			)}
 			</div>
 			</div>
+			</div>
+			</div>
+		))}
+		</div>
+		
+		{/* Modal */}
+		{modalItem && (
+			<>
+			<div
+			className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[1px]"
+			onClick={() => setModalItem(null)}
+			/>
+			<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+			<div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col">
+			{/* Modal header */}
+			<div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
+			<div className="flex items-center gap-2.5">
+			<div className="p-1.5 bg-maranics-primary/10 rounded-lg text-maranics-primary">
+			<CollectionIcon name={collection.icon} />
+			</div>
+			<div>
+			<p className="text-sm font-bold text-gray-900">
+			{String(modalItem[titleField.id] ?? "—")}
+			</p>
+			{subtitleField && (
+				<p className="text-xs text-gray-400">
+				{String(modalItem[subtitleField.id] ?? "")}
+				</p>
+			)}
+			</div>
+			</div>
+			<div className="flex items-center gap-2">
+			<button
+			onClick={() => {
+				onEdit(modalItem);
+				setModalItem(null);
+			}}
+			className="flex items-center gap-1.5 h-8 px-3 border border-gray-200 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+			>
+			<Edit className="w-3 h-3" />
+			Edit
+			</button>
+			<button
+			onClick={() => setModalItem(null)}
+			className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+			>
+			<X className="w-4 h-4" />
+			</button>
+			</div>
+			</div>
 			
-			{/* Expanded section */}
-			{isExpanded && (
-				<div className="border-t border-gray-100 px-4 py-4 bg-gray-50 rounded-b-xl">
-				<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-				{Object.entries(grouped).map(([groupName, fields]) => (
-					<div key={groupName}>
-					<h4 className="text-xs font-bold text-maranics-primary uppercase tracking-wider mb-3 pb-1 border-b border-gray-200">
-					{groupName}
-					</h4>
-					<div className="flex flex-col gap-3">
-					{fields.map((field: Field) => (
-						<LabelValue key={field.id} label={field.label}>
-						<div className="text-sm text-gray-900">
-						{renderValue(field, item)}
-						</div>
-						</LabelValue>
-					))}
+			{/* Modal body */}
+			<div className="overflow-y-auto px-6 py-5">
+			<div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+			{Object.entries(grouped).map(([groupName, fields]) => (
+				<div key={groupName}>
+				<h4 className="text-xs font-bold text-maranics-primary uppercase tracking-wider mb-3 pb-1 border-b border-gray-100">
+				{groupName}
+				</h4>
+				<div className="flex flex-col gap-3">
+				{fields.map((field: Field) => (
+					<LabelValue key={field.id} label={field.label}>
+					<div className="text-sm text-gray-900">
+					{renderValue(field, modalItem)}
 					</div>
-					</div>
+					</LabelValue>
 				))}
 				</div>
 				</div>
-			)}
+			))}
 			</div>
-		);
-	})}
-	</div>
-);
+			</div>
+			</div>
+			</div>
+			</>
+		)}
+		</>
+	);
 }
 
 export default CardView;
